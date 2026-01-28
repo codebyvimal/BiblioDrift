@@ -44,6 +44,10 @@ To keep the frontend and backend synced, use the following mapping:
 | :--- | :--- | :--- | :--- |
 | **Book Vibe** | `POST /api/v1/generate-note` | `handle_generate_note()` | `generate_book_note()` |
 
+### API Integration
+- **Endpoint**: `POST /api/v1/generate-note`
+- **Logic**: Processed by `ai_service.py`
+
 ## 🤝 Contributing
 We welcome contributions to make BiblioDrift cozier!
 
