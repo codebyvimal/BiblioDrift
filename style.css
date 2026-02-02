@@ -533,3 +533,91 @@ main {
     color: white;
     transform: translateY(-5px);
 }
+/* --- Hover Effects --- */
+.tap-effect {
+    transform: translateZ(30px) translateY(-10px) rotateY(-10deg);
+}
+
+.tap-overlay {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.tap-btn-icon {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.tap-nav-link {
+    color: var(--text-main);
+}
+
+.tap-theme-toggle {
+    transform: rotate(15deg) scale(1.1);
+    color: var(--accent-gold);
+}
+
+.tap-back-to-top {
+    background: var(--book-bg);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    color: var(--accent-gold);
+}
+
+.tap-social-icon {
+    color: white;
+    transform: translateY(-5px);
+}
+
+/* Mobile / small screen adjustments */
+@media (max-width: 600px) {
+    .curated-row,
+    .shelf-row {
+        flex-wrap: wrap; /* allow books to wrap to next line */
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .book-scene {
+        width: 120px;  /* smaller book */
+        height: 180px;
+    }
+
+    .book__face--front img {
+        width: 100%;
+        height: 100%;
+    }
+
+    .book__face--spine {
+        width: 25px;
+    }
+
+    .book__face--right {
+        width: 25px;
+        transform: rotateY(90deg) translateZ(70px);
+    }
+}
+
+@media (max-width: 600px) {
+    /* Scale book back face */
+    .book__face--back {
+        padding: 0.8rem;       /* smaller padding */
+        font-size: 0.8rem;     /* smaller text */
+    }
+
+    /* Handwritten notes scale down */
+    .handwritten-note {
+        font-size: 0.7rem;
+        padding: 6px;
+        line-height: 1.2;
+    }
+
+    /* Glass overlay inside books */
+    .glass-overlay {
+        bottom: 5px;
+        left: 5px;
+        right: 5px;
+        padding: 0.3rem;
+        font-size: 0.7rem;
+    }
+}

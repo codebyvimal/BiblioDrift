@@ -280,3 +280,53 @@ function handleAuth(event) {
 
   window.location.href = "library.html";
 }
+
+
+function enableTapEffects() {
+    if (!('ontouchstart' in window)) return;
+
+    document.querySelectorAll('.book-scene').forEach(scene => {
+        const book = scene.querySelector('.book');
+        const overlay = scene.querySelector('.glass-overlay');
+        scene.addEventListener('click', () => {
+            book.classList.toggle('tap-effect');
+            if (overlay) overlay.classList.toggle('tap-overlay');
+        });
+    });
+
+    document.querySelectorAll('.btn-icon').forEach(btn => {
+        btn.addEventListener('click', () => {
+            btn.classList.toggle('tap-btn-icon');
+        });
+    });
+
+
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            link.classList.toggle('tap-nav-link');
+        });
+    });
+
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            themeToggle.classList.toggle('tap-theme-toggle');
+        });
+    }
+
+    const backTop = document.querySelector('.back-to-top');
+    if (backTop) {
+        backTop.addEventListener('click', () => {
+            backTop.classList.toggle('tap-back-to-top');
+        });
+    }
+
+   
+    document.querySelectorAll('.social_icons a').forEach(icon => {
+        icon.addEventListener('click', () => {
+            icon.classList.toggle('tap-social-icon');
+        });
+    });
+}
+
+enableTapEffects();
