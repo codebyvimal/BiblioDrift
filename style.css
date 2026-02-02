@@ -497,7 +497,7 @@ main {
 .back-to-top:hover {
     background: var(--book-bg);
     transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.25);
     color: var(--accent-gold);
 }
 /*Footer design */
@@ -560,7 +560,7 @@ main {
 .tap-back-to-top {
     background: var(--book-bg);
     transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.25);
     color: var(--accent-gold);
 }
 
