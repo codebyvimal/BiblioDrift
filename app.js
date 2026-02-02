@@ -512,3 +512,25 @@ if (backToTopBtn) {
     });
 }
 });
+
+// Export Library as JSON
+document.getElementById("export-library").addEventListener("click", () => {
+    const library = localStorage.getItem("bibliodrift_library"); // replace with your actual localStorage key
+    if (!library) {
+        alert("Your library is empty!");
+        return;
+    }
+
+    const blob = new Blob([library], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `bibliodrift_library_${new Date().toISOString().slice(0,10)}.json`; // optional timestamp
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(url);
+    alert("Library exported successfully!");
+});
