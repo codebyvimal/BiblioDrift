@@ -696,4 +696,47 @@ main {
     scrollbar-color: #c7a17a #f3eee2;
 }
 
+/* changing the header on scroll */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: #fff; 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  transition: all 0.4s ease;
+  box-shadow: 0 0 0 rgba(0,0,0,0);
+  z-index: 1000;
+}
 
+header.shrink {
+  height: 60px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 0 25px;
+}
+
+header .logo {
+  font-size: 1.6rem;
+  transition: all 0.4s ease;
+}
+
+header.shrink .logo {
+  font-size: 1.3rem;
+}
+
+header .nav-links {
+  display: flex;
+  gap: 20px;
+  transition: all 0.4s ease;
+}
+
+header.shrink .nav-links a {
+  transform: translateY(-4px);
+  font-size: 0.95rem;
+  opacity: 0.9;
+  transition: all 0.4s ease;
+}
