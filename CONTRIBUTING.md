@@ -20,7 +20,7 @@ Before you start, make sure you are familiar with our tech stack:
 - **Backend**: Python Flask
 - **API**: Google Books API
 
-### Prerequisities
+### Prerequisites
 
 1.  Python 3.x installed
 2.  A modern web browser
