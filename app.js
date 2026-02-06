@@ -512,45 +512,77 @@ class LibraryManager {
             const res = await fetch(`${this.apiBase}/library/${user.id}`);
             if (res.ok) {
                 const data = await res.json();
-                // Merge backend data into local structures for rendering
-                // Note: To be robust, this should handle duplicates, but for MVP we'll just parse
-                // the backend items into shelves
-                const backendLibrary = { current: [], want: [], finished: [] };
                 
+                // Merge Strategy:
+                // 1. Create a map of existing local books for quick lookup
+                const localBooksMap = new Map();
+                ['current', 'want', 'finished'].forEach(shelf => {
+                    this.library[shelf].forEach(book => {
+                        localBooksMap.set(book.id, { book, shelf });
+                    });
+                });
+
+                // 2. Process backend books
                 data.library.forEach(item => {
-                    // Reconstruct book object structure expected by renderer
-                    const book = {
+                    const existing = localBooksMap.get(item.google_books_id);
+                    
+                    // Construct standard book object
+                    const remoteBook = {
                         id: item.google_books_id,
-                        db_id: item.id, // Database ID for updates/deletes
+                        db_id: item.id,
                         volumeInfo: {
                             title: item.title,
                             authors: item.authors ? item.authors.split(', ') : [],
                             imageLinks: { thumbnail: item.thumbnail }
                         },
-                        // Default progress if not stored in DB yet, or add column later
+                        // Preserve local progress if exists, else default
+                        progress: existing ? existing.book.progress : (item.shelf_type === 'current' ? 0 : null)
                     };
-                    
-                    if (backendLibrary[item.shelf_type]) {
-                        backendLibrary[item.shelf_type].push(book);
+
+                    if (existing) {
+                        // Check if shelf matches
+                        if (existing.shelf !== item.shelf_type) {
+                            // Backend wins on shelf conflict (syncing FROM server)
+                            // Remove from old shelf
+                            this.library[existing.shelf] = this.library[existing.shelf].filter(b => b.id !== item.google_books_id);
+                            // Add to new shelf
+                            this.library[item.shelf_type].push(remoteBook);
+                        } else {
+                            // Update details (e.g. db_id might be missing locally if added offline)
+                            Object.assign(existing.book, remoteBook);
+                        }
+                        // Mark as processed/merged
+                        localBooksMap.delete(item.google_books_id); 
+                    } else {
+                        // New book from backend
+                        if (this.library[item.shelf_type]) {
+                            this.library[item.shelf_type].push(remoteBook);
+                        }
                     }
                 });
 
-                // Update local library state (simple override for now to ensure consistency)
-                // In a real app we might merge local+remote
-                if (data.library.length > 0) {
-                   this.library = backendLibrary;
-                   this.saveLocally();
-                   // If we are on library page, trigger re-render
-                   if (document.getElementById('shelf-want')) {
-                       const sortSelect = document.getElementById('sortLibrary');
-                       if (sortSelect) {
-                           this.sortLibrary(sortSelect.value);
-                       } else {
-                           this.renderShelf('want', 'shelf-want');
-                           this.renderShelf('current', 'shelf-current');
-                           this.renderShelf('finished', 'shelf-finished');
-                       }
-                   }
+                // 3. Handle remaining local books (not in backend)
+                // These could be:
+                // a) Added offline and not yet synced -> Keep them
+                // b) Deleted on another device -> Should remove?
+                // For this implementation, we will KEEP them to prioritize no data loss (offline first).
+                // Ideally, we'd check timestamps or have a specific "sync queue".
+                
+                this.saveLocally();
+                
+                // Trigger Render
+                if (document.getElementById('shelf-want')) {
+                    const sortSelect = document.getElementById('sortLibrary');
+                    if (sortSelect) {
+                         // use existing sort logic if available
+                        if (typeof this.sortLibrary === 'function') {
+                             this.sortLibrary(sortSelect.value);
+                        }
+                    } else {
+                        this.renderShelf('want', 'shelf-want');
+                        this.renderShelf('current', 'shelf-current');
+                        this.renderShelf('finished', 'shelf-finished');
+                    }
                 }
             }
         } catch (e) {
@@ -560,7 +592,22 @@ class LibraryManager {
     }
 
     async addBook(book, shelf) {
-        if (this.findBook(book.id)) return;
+        // Check if book exists ANYWHERE in library specifically by ID
+        if (this.findBook(book.id)) {
+            // It exists. Check where.
+            const existingShelf = this.findBookShelf(book.id);
+            if (existingShelf === shelf) {
+                showToast("Book already in this shelf!", "info");
+                return;
+            } else if (existingShelf) {
+                // Move logic? For now, prevent duplicates and notify user.
+                // Or allow "moving" implicitly? 
+                // Let's implement move: Remove from old, add to new.
+                this.removeBook(book.id); 
+                // Fall through to add
+                showToast(`Moved book from ${existingShelf} to ${shelf}`, "info");
+            }
+        }
 
         const enrichedBook = {
             ...book,
@@ -610,6 +657,13 @@ class LibraryManager {
             if (this.library[shelf].some(b => b.id === id)) return true;
         }
         return false;
+    }
+
+    findBookShelf(id) {
+        for (const shelf in this.library) {
+            if (this.library[shelf].some(b => b.id === id)) return shelf;
+        }
+        return null;
     }
 
     findBookInShelf(id) {
