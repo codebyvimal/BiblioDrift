@@ -7,6 +7,21 @@
 const API_BASE = 'https://www.googleapis.com/books/v1/volumes';
 const MOOD_API_BASE = 'http://localhost:5000/api/v1';
 
+let GOOGLE_API_KEY = '';
+
+async function loadConfig() {
+    try {
+        const res = await fetch(`${MOOD_API_BASE}/config`);
+        if (res.ok) {
+            const data = await res.json();
+            GOOGLE_API_KEY = data.google_books_key || '';
+            console.log("Config loaded");
+        }
+    } catch (e) {
+        console.warn("Failed to load backend config", e);
+    }
+}
+
 // Toast Notification Helper
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
@@ -414,7 +429,8 @@ class BookRenderer {
         if (!container) return; // Not on page
 
         try {
-            const res = await fetch(`${API_BASE}?q=${query}&maxResults=5&printType=books`);
+            const keyParam = GOOGLE_API_KEY ? `&key=${GOOGLE_API_KEY}` : '';
+            const res = await fetch(`${API_BASE}?q=${query}&maxResults=5&printType=books${keyParam}`);
             
             if (!res.ok) {
                 throw new Error(`API Error: ${res.statusText}`);
@@ -786,7 +802,10 @@ class ThemeManager {
 
 
 // Init
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Load config first to get API keys
+    await loadConfig();
+
     const libManager = new LibraryManager();
     const renderer = new BookRenderer(libManager);
     const themeManager = new ThemeManager();
