@@ -323,7 +323,7 @@ def health_check():
             "llm_service_available": llm_service.is_available(),
             "openai_configured": llm_service.openai_client is not None,
             "groq_configured": llm_service.groq_client is not None,
-            "gemini_configured": llm_service.gemini_model is not None,
+            "gemini_configured": llm_service.gemini_client is not None,
             "preferred_llm": llm_service.preferred_llm
         }
     })
